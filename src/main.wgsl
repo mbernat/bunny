@@ -1,5 +1,6 @@
 struct VertexInput {
-    @location(0) position: vec3<f32>
+    @location(0) position: vec3<f32>,
+    @location(1) normal: vec3<f32>
 }
 
 struct VertexOutput {
@@ -14,15 +15,37 @@ struct FragmentInput {
     @location(0) color: vec4<f32>
 }
 
-@vertex
-fn vertex(@builtin(vertex_index) index: u32, in: VertexInput) -> VertexOutput {
-    var out: VertexOutput;
-    out.position = vec4(in.position * 20.0, 1.0) + vec4(0.5, -2.0, 0.0, 1.0);
+fn color_by_index(index: u32) -> vec4<f32> {
     let id = f32(index) / 1000.0;
     let r = i32(index) % 3 - 1;
     let g = 1 - i32(index) % 3;
     let b = 1 - abs(i32(index) % 3 - 1);
-    out.color = id * vec4(f32(r), f32(g), f32(b), 1.0);
+    return vec4(f32(r), f32(g), f32(b), 1.0);
+}
+
+@vertex
+fn vertex(@builtin(vertex_index) index: u32, in: VertexInput) -> VertexOutput {
+    var out: VertexOutput;
+    let model = mat4x4(
+        10.0, 0.0, 0.0, 0.0,
+        0.0, 10.0, 0.0, 0.0,
+        0.0, 0.0, 10.0, 0.0,
+        0.0, 0.0, 0.0, 1.0,
+    );
+    let view = mat4x4(
+        1.0, 0.0, 0.0, 0.2,
+        0.0, 1.0, 0.0, -1.0,
+        0.0, 0.0, 1.0, 0.0,
+        0.0, 0.0, 0.0, 1.0,
+    );
+    out.position = vec4(in.position, 1.0) * model * view;
+
+    let light = vec3(0.0, 1.0, 1.0);
+    let light_normal = -normalize(light);
+    out.color = vec4(vec3(abs(dot(in.normal, light_normal))), 1.0);
+    //out.color = vec4(in.normal, 1.0);
+    // out.color = color_by_index(index);
+
     return out;
 }
 
