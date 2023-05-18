@@ -26,23 +26,28 @@ fn color_by_index(index: u32) -> vec4<f32> {
 @vertex
 fn vertex(@builtin(vertex_index) index: u32, in: VertexInput) -> VertexOutput {
     var out: VertexOutput;
+    let scale = 5.0;
+    let phi = 0.5;
+    let c = scale * cos(phi);
+    let s = scale * sin(phi);
     let model = mat4x4(
-        10.0, 0.0, 0.0, 0.0,
-        0.0, 10.0, 0.0, 0.0,
-        0.0, 0.0, 10.0, 0.0,
+        scale, 0.0, 0.0, 0.0,
+        0.0, c, -s, 0.0,
+        0.0, s, c, 0.0,
         0.0, 0.0, 0.0, 1.0,
     );
     let view = mat4x4(
         1.0, 0.0, 0.0, 0.2,
-        0.0, 1.0, 0.0, -1.0,
+        0.0, 1.0, 0.0, -0.5,
         0.0, 0.0, 1.0, 0.0,
         0.0, 0.0, 0.0, 1.0,
     );
     out.position = vec4(in.position, 1.0) * model * view;
 
-    let light = vec3(0.0, 1.0, 1.0);
+    let light = vec3(1.0, 2.0, 1.0);
     let light_normal = -normalize(light);
-    out.color = vec4(vec3(abs(dot(in.normal, light_normal))), 1.0);
+    let intensity = clamp((1.0 + dot(in.normal, light_normal)) / 2.0, 0.0, 1.0);
+    out.color = vec4(vec3(0.8 * intensity + 0.2), 1.0);
     //out.color = vec4(in.normal, 1.0);
     // out.color = color_by_index(index);
 

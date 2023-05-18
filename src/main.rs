@@ -91,7 +91,7 @@ impl Map {
             let va = positions[*a as usize];
             let vb = positions[*b as usize];
             let vc = positions[*c as usize];
-            let normal = (vb - va).cross(vc - vb).normal();
+            let normal = -1.0 * (vb - va).cross(vc - vb).normal();
             normals[*a as usize] = (normal + normals[*a as usize]).normal();
             normals[*b as usize] = (normal + normals[*b as usize]).normal();
             normals[*c as usize] = (normal + normals[*c as usize]).normal();
